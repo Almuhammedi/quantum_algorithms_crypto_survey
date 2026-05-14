@@ -14,26 +14,25 @@
 \usepackage{xcolor}
 \usepackage{caption}
 \usepackage{pdflscape}
+\usepackage{subcaption}
 
 \hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
 \geometry{margin=1in}
 
 \title{\textbf{Quantum Cryptanalytic Algorithms and the Transition to Post-Quantum Cryptography:\\A Survey of Emerging Threats and NIST PQC Standards}}
 \author{Tariq A, Cybersecurity Department, Sana’a University}
-\date{April 2026}
+\date{May 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-The rapid advancement of quantum computing poses a fundamental threat to classical cryptographic systems based on integer factorization and discrete logarithms. This paper presents a comprehensive survey of quantum cryptanalytic algorithms and their implications for modern security infrastructures. The paper reviews state-of-the-art resource estimates for quantum factoring, including recent approaches that reduce physical qubit requirements under optimistic assumptions, as well as alternative frameworks such as Regev’s algorithm. The impact of quantum search algorithms on symmetric primitives is also analysed, highlighting practical reductions in effective security levels.
+The rapid advancement of quantum computing presents a fundamental challenge to classical cryptographic systems, necessitating a comprehensive understanding of both algorithmic and hardware progress. This survey examines the evolving quantum threat landscape along three critical dimensions. First, it reviews the evolution of quantum cryptanalytic algorithms, from foundational results such as Shor’s algorithm and Grover’s algorithm to more recent refinements and alternative constructions, including Regev-type frameworks, highlighting how these developments affect both asymmetric cryptosystems and the effective security of symmetric primitives. Second, it analyses recent reductions in quantum resource requirements, with particular emphasis on fault-tolerant architectures and quantum error-correction techniques that significantly lower physical qubit overhead under optimistic assumptions. Third, it evaluates progress in quantum hardware, including improvements in qubit coherence, noise resilience, and material platforms, which collectively influence the feasibility and timeline of large-scale fault-tolerant quantum computation.
 
-In parallel, the paper examines the status of post-quantum cryptographic standardisation, with emphasis on NIST FIPS 203–205 and ongoing developments. Implementation-level vulnerabilities, including recent timing attacks on lattice-based schemes, are discussed to underscore deployment challenges.
-
-Finally, a risk assessment framework based on Mosca’s inequality is applied to evaluate migration timelines under the “harvest now, decrypt later” threat model. The analysis highlights that risk is driven not only by uncertainty in quantum capabilities but also by the accumulation of vulnerable encrypted data. Based on these findings, practical recommendations are provided to support cryptographic agility and secure transition to post-quantum standards.
+In parallel, the paper reviews the status of post-quantum cryptographic standardisation, focusing on National Institute of Standards and Technology FIPS 203–205 and ongoing developments, and discusses implementation-level vulnerabilities to highlight deployment challenges. A risk assessment framework based on Mosca’s inequality is applied to contextualise these advances under the “harvest now, decrypt later” threat model. The analysis demonstrates that cryptographic risk is shaped not only by algorithmic breakthroughs but also by reductions in qubit overhead and improvements in hardware stability, both of which compress the timeline to cryptanalytically relevant quantum capabilities. Based on these findings, the paper provides practical recommendations to support cryptographic agility and a secure transition to post-quantum standards.
 \end{abstract}
 
-\textbf{Keywords—} Cryptanalytically Relevant Quantum Computer, Post-Quantum Cryptography, Shor’s Algorithm, Grover’s Algorithm, NIST FIPS 203–205.
+\textbf{Keywords—} Cryptanalytically Relevant Quantum Computer, Post-Quantum Cryptography, Shor’s Algorithm, Grover’s Algorithm, Mosca’s inequality, NIST FIPS 203–205.
 
 \section{Introduction}
 Modern digital security is foundational to global communication and commerce, relying upon a combination of asymmetric and symmetric cryptographic primitives. Asymmetric systems, such as RSA and Elliptic Curve Cryptography (ECC), facilitate essential services including secure key exchange, digital signatures, and identity verification. These schemes derive their security from the computational hardness of integer factorization and the discrete logarithm problem (DLP)—mathematical challenges that are efficiently solvable via Shor’s quantum algorithm. Consequently, classical public-key infrastructures are entirely vulnerable to the eventual realization of a cryptanalytically relevant quantum computer (CRQC; also referred to as a cryptographically relevant quantum computer).\cite{shor1997,regev2024,ijonest_crqc} Symmetric primitives, including AES and SHA‑2, are not broken outright by quantum algorithms; however, Grover’s algorithm provides a generic quadratic speed‑up for brute‑force search and thus reduces their effective security margins, motivating the use of larger key and digest sizes (e.g., AES‑256, SHA‑384/512) for post‑quantum robustness. \cite{grover1996,ijqc_grover,postquantum_grover}
@@ -46,14 +45,23 @@ In response, NIST released the first generation of standardized post-quantum alg
 A CRQC would break widely deployed public-key systems based on integer factorization and discrete logarithms, endangering confidentiality and authenticity of internet-scale systems.\cite{nist_crqc,cisa_crqc,ijonest_crqc} Even before such a device exists, adversaries can mount \emph{harvest now decrypt later} (HNDL) attacks by storing encrypted traffic today for future decryption—elevating the urgency of PQC migration for data with long confidentiality lifetimes.\cite{hndl-fed}
 
 \section{Objectives}
-The purpose of this survey is to synthesize current research on quantum cryptanalysis, evaluate the vulnerability of classical cryptographic systems to quantum attacks, and identify practical guidance for post‑quantum transition. Accordingly, this research aims to achieve the following objectives:
+
+The purpose of this survey is to synthesize current research on quantum cryptanalysis, evaluate the vulnerability of classical cryptographic systems to quantum attacks, and identify practical guidance for post-quantum transition. Accordingly, this paper aims to achieve the following objectives:
 
 \begin{itemize}[leftmargin=*]
-  \item Identify the quantum algorithms that most critically threaten current cryptosystems and summarize state-of-the-art resource estimates.
-  \item Review the status and technical properties of NIST-standardized and in-development PQC schemes.
-  \item Analyze the practical threat from Shor's and Grover's algorithms to asymmetric, symmetric encryption and hashing, and discuss recommended parameter choices.
+
+  \item Identify the quantum algorithms that most critically threaten contemporary cryptosystems and summarize current resource estimates.
+
+  \item Review the status, standardization progress, and technical properties of NIST-standardized and emerging post-quantum cryptographic (PQC) schemes.
+
+  \item Analyze the practical implications of Shor’s and Grover’s algorithms for asymmetric cryptography, symmetric encryption, and cryptographic hashing, and discuss recommended security parameter adjustments.
+
   \item Highlight recent implementation-level attacks (e.g., KyberSlash) and extract lessons for secure PQC deployment.
-  \item Provide migration recommendations and a research outlook grounded in current guidance.
+
+  \item Provide migration recommendations and a future research outlook grounded in current standardization guidance and threat projections.
+
+  \item Examine the applicability and limitations of Mosca’s Inequality as a framework for post-quantum risk assessment, and discuss potential extensions toward continuous HNDL-oriented risk models incorporating temporal exposure accumulation and information-value persistence.
+
 \end{itemize}
 
 \section{Literature Review}
@@ -74,6 +82,7 @@ Regev introduced a factoring framework with a lower gate complexity per run but 
 \subsection{Grover's Algorithm and Symmetric Primitives}
 Grover's algorithm yields a quadratic speed-up for unstructured search; in cryptography this implies that idealized key search over a $k$-bit key space requires roughly $2^{k/2}$ evaluations.\cite{grover1996,grovercost} This reduction affects all symmetric primitives, including block ciphers, MACs, and hash functions. However, unlike Shor’s algorithm for RSA and ECC—which completely breaks those schemes—a quadratic speed‑up merely reduces effective security, rather than eliminating it outright.
 
+While no known algorithm asymptotically surpasses Grover’s bound for unstructured symmetric-key search, ongoing advances in hybrid quantum optimization, oracle engineering, circuit reduction, and variational quantum algorithms may progressively reduce the practical resource overheads associated with future quantum computational and cryptanalytic implementations.\cite{ali2025}
 \subsection{NIST Guidance on Symmetric Security in the Quantum Era}
 NIST key‑management recommendations and cost analyses provide baseline guidance for selecting symmetric-key parameters suitable for long‑lived
 data in the presence of quantum adversaries, including the use of AES‑256 and SHA‑384/512 to retain adequate post‑quantum security margins.\cite{sp80057}
@@ -100,7 +109,7 @@ These approaches differ in physical realization, which directly influences opera
 
 \begin{table}[h]
 \centering
-\caption{Comparison of major quantum computing hardware platforms (as of 2026)}
+\caption{Comparison of major quantum computing hardware platforms as of 2026. Reported values are representative approximate estimates and may vary across implementations and experimental conditions.}
 \label{tab:quantum_hardware_comparison}
 \begin{tabular}{lccc}
 \toprule
@@ -110,7 +119,7 @@ Qubit Type & Transmon & Spin (Si) & Topological \\
 Physical Platform & Superconducting circuits & Quantum dots & Majorana modes \\
 Operating Temperature & $\sim$10--20 mK & $\sim$50--100 mK & $\sim$20 mK (target) \\
 Coherence Time & $\sim$50--200 $\mu$s & $\mu$s--ms & Theoretical (long) \\
-Gate Speed & $\sim$10--100 ns & ns--$\mu$s & TBD \\
+Gate Speed & $\sim$10--100 ns & ns--$\mu$s & No validated value \\
 Scalability & 100--1000+ qubits & Early-stage & Experimental \\
 Key Limitation & Decoherence, cooling & Variability & Unproven physics \\
 \bottomrule
@@ -258,7 +267,7 @@ Avoid password-based auth \\ \hline
 \end{landscape}
 \subsection{Framework for Quantum Risk: Mosca’s Theorem}
 The strategic risk posed by the algorithms analyzed in the previous sections is formally characterized by Mosca’s Theorem, defined by the inequality $x + y > z$. A security collapse occurs if the required secrecy duration ($x$) plus the migration time ($y$) exceeds the estimated time until a CRQC ($z$).\cite{Mosca2018} This inequality is currently being driven toward failure by the accelerated hardware roadmaps of major industry leaders.
-\section{Post-Quantum Cryptography and NIST Standards}
+\section{PQC and NIST Standards}
 \subsection{Finalized PQC Standards (Aug 13, 2024)}
 \begin{itemize}[leftmargin=*]
   \item \textbf{FIPS 203 (ML-KEM):} Based on the CRYSTALS-Kyber submission, this Module-Lattice Key Encapsulation Mechanism (KEM) is the primary standard for general-purpose encryption. It utilizes the hardness of the Module Learning with Errors (MLWE) problem. NIST offers three parameter sets corresponding to AES-128, 192, and 256 security strengths (ML-KEM-512, -768, and -1024). It ensures robustness against adaptive chosen-ciphertext attacks, making it the "drop-in" replacement for RSA-KEM and Elliptic Curve Diffie-Hellman (ECDH).\cite{nist203}
@@ -272,7 +281,7 @@ The strategic risk posed by the algorithms analyzed in the previous sections is 
   \item \textbf{Code-based KEMs:} NIST selected HQC (Hamming Quasi-Cyclic) in 2025 to diversify KEM families beyond lattices in the standardization pipeline. HQC serves as a non-lattice alternative to ML-KEM, relying on the hardness of decoding random linear codes (specifically, the Syndrome Decoding Problem).\cite{nistpqc}
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \begin{tabular}{@{}p{2.5cm}p{3.8cm}p{8.5cm}@{}}
 \toprule
@@ -290,8 +299,9 @@ HQC \\(pipeline) & KEM (Code-based) & Diversifies beyond lattices; selection ann
 
 \section{Results and Discussion}
 \subsection{Risk Posture and Timelines}
-Recent reductions in qubit estimates for RSA-2048 factoring (from \(\sim\!20\) million to below one million, and potentially to \(\sim\!10^5\) under QLDPC assumptions) may reduce theoretical resource estimates for CRQC feasibility, yet practical realization remains uncertain.\cite{gidney2025,webster2026} Given HNDL, long-lived data encrypted today with vulnerable public-key schemes may be at risk if not rekeyed to PQC.\cite{hndl-fed}
+Recent reductions in qubit estimates for RSA-2048 factoring (from \(\sim\!20\) million to below one million, and potentially to \(\sim\!10^5\) under QLDPC assumptions) may reduce theoretical resource estimates for CRQC feasibility, yet practical realization remains uncertain.\cite{gidney2025,webster2026} Given HNDL, long-lived data encrypted today with vulnerable public-key schemes may be at risk if not rekeyed to PQC.
 
+Emerging hardware platforms demonstrating operation at elevated temperatures (e.g., electron qubits on solid neon) indicate progress toward more practical and scalable quantum systems. While such approaches do not yet achieve fault tolerance, they reduce key engineering barriers, thereby increasing uncertainty in long-term timelines.
 \subsection{Implementation Attacks: KyberSlash}
 The KyberSlash timing attacks (KyberSlash1/2) target secret-dependent division timings in some Kyber (ML-KEM) implementations (including reference code prior to late-2023 patches), demonstrating practical key recovery on Cortex-A7/M4 under repeated decapsulation. The scheme remains sound; the lesson is that \emph{constant-time, constant-memory-access} implementations and rigorous validation are mandatory for PQC rollouts.\cite{kyberslash}
 
@@ -299,21 +309,103 @@ The KyberSlash timing attacks (KyberSlash1/2) target secret-dependent division t
 Given Grover’s quadratic speedup for key search, the effective post-quantum security of a $k$-bit symmetric key is reduced to roughly $k/2$ bits. This motivates the use of AES-256 for long-lived confidentiality, as it maintains approximately 128 bits of post-quantum strength. 
 
 For hash-based constructions, it is important to distinguish preimage and collision security. Grover’s algorithm reduces preimage resistance from $n$ bits to $2^{n/2}$ operations, but collision resistance is governed not by Grover but by the Brassard–Høyer–Tapp (BHT) quantum collision algorithm, which reduces the cost of collision search to approximately $2^{n/3}$; however, practical feasibility for BHT requires huge quantum memory (qRAM) and tight models. Consequently, shorter digests such as SHA-256 provide limited long-term collision security in the quantum setting, whereas SHA-384/512 retain adequate margins. Consistent with NIST’s key-management recommendations, AES-256 and SHA-384/512 are preferred for long-lived post-quantum protection.\cite{bht1997}
-\subsection{The Quantum Criticality: Validating Mosca’s Inequality}
 
-Historically, the $z$ variable in Mosca’s Inequality has been estimated under surface-code-based assumptions, which placed the physical qubit requirements for RSA-2048 factorization in the range of $10^7$–$10^8$. Recent research, however, suggests that this timeline may be compressible along two primary axes:
+Among contemporary hash constructions, SHA-3 and its SHAKE extendable-output variants are widely regarded as strong candidates for post-quantum applications due to their conservative security margins, flexible sponge-based design, and compatibility with several standardized PQC schemes. Notably, SHA-3 was standardized in FIPS 202 prior to the publication of the recent NIST PQC standards, and its SHAKE variants are already incorporated into multiple standardized post-quantum cryptographic constructions.\cite{nist202}
+\subsection{From Quantum Criticality to Risk: Reformulating Mosca’s Inequality}
+
+Historically, the parameter $z$ in Mosca’s Inequality has been estimated under surface-code-based assumptions, placing the physical qubit requirements for RSA-2048 factorization in the range of $10^7$--$10^8$. Recent research, however, suggests that this timeline may be compressible along three primary axes:
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Algorithmic Refinement:} Alternative approaches, such as Oded Regev’s factoring algorithm, trade increased repetition for reduced circuit depth, lowering the asymptotic depth from $\tilde{O}(k^3)$ toward $\tilde{O}(k^{1.5})$. While this does not reduce total computational cost, it relaxes requirements on sustained coherent execution and may better align with architectures constrained by logical qubit lifetimes and parallelization limits.
 
-\item \textbf{Architectural Optimization:} Emerging fault-tolerant designs based on QLDPC codes indicate the possibility of substantial reductions in physical qubit overhead compared to surface-code approaches. These gains, however, are contingent on more demanding architectural assumptions, including non-local connectivity, high-throughput syndrome extraction, and fast classical decoding, and remain unvalidated at scale.
+\item \textbf{Algorithmic Refinement:} Alternative approaches, such as Oded Regev’s factoring algorithm, trade increased repetition for reduced circuit depth, lowering the asymptotic depth from $\tilde{O}(k^3)$ toward $\tilde{O}(k^{1.5})$. While the total computational cost remains comparable, this shift relaxes requirements on sustained coherent execution and may better align with architectures constrained by logical qubit lifetimes and parallelization limits.
+
+\item \textbf{Architectural Optimization:} Emerging fault-tolerant designs based on QLDPC codes indicate the possibility of substantial reductions in physical qubit overhead compared to surface-code approaches. These gains, however, remain contingent on demanding architectural assumptions, including non-local connectivity, high-throughput syndrome extraction, and fast classical decoding, and have not yet been validated at large scale.
+
+\item \textbf{Engineering Improvements:} Advances in qubit materials and device engineering further influence the parameter $z$. Improvements in coherence times, noise resilience, fabrication quality, and operating conditions may accelerate system scalability, thereby compressing the timeline to cryptanalytically relevant quantum capabilities under optimistic assumptions.
+
 \end{itemize}
 
-Despite these advances, the precise realization date of a CRQC remains uncertain. Public roadmaps from major hardware developers suggest progress toward early fault-tolerant systems within the next decade, but translating these into large-scale, application-capable machines introduces significant additional engineering challenges. As such, estimates of $z$ on the order of 10–20 years should be interpreted as optimistic and highly assumption-dependent.
+Nevertheless, the realization date of a CRQC remains highly uncertain, and estimates on the order of 10--20 years should be interpreted as assumption-dependent rather than predictive.
 
-The risk captured by Mosca’s Inequality is further amplified by the HNDL threat model, wherein adversaries systematically collect encrypted data today ($x$) with the expectation of future decryption. Within this framework, the migration timeline ($y$) assumes critical importance: if $x + y \geq z$, even a delayed quantum breakthrough can result in retrospective compromise of sensitive information. Consequently, the migration window should not be treated as a future contingency, but rather as a present operational constraint for data with long-term confidentiality requirements.
+While Mosca’s Inequality, $x + y > z$, is traditionally interpreted as a binary threshold for cryptographic failure, this formulation obscures the continuous nature of exposure accumulation under the HNDL threat model. To address this limitation, the inequality can be reformulated as a signed temporal margin:
 
-More fundamentally, Mosca’s formulation captures a threshold condition but does not fully account for the continuous accumulation of exposed ciphertext during the migration period. In practice, post-quantum risk is driven not solely by uncertainty in CRQC timelines (z), but by the deterministic growth of vulnerable data as migration is deferred. This accumulation effect systematically increases the potential impact of HNDL adversaries, irrespective of the precise timing of large-scale quantum capabilities.
+\[
+\tau = x + y - z
+\]
+
+where $\tau$ represents the temporal distance from the critical boundary. The regime $\tau > 0$ corresponds to deterministic vulnerability, whereas $\tau \leq 0$ represents a conditionally secure regime in which CRQC-enabled compromise is not guaranteed.
+
+However, realistic confidentiality models rarely exhibit abrupt value expiration. In practice, the value of encrypted information typically decays gradually over time rather than vanishing instantaneously after a fixed secrecy lifetime. Consequently, the regime $\tau \leq 0$ should be interpreted as representing negligible---rather than strictly zero---risk under non-ideal assumptions.
+
+Furthermore, the accumulation of exposed ciphertext during the migration period introduces a temporal amplification effect: as migration is delayed, the quantity of vulnerable data systematically increases, thereby raising the potential impact of future quantum decryption capabilities.
+
+\begin{figure*}[htbp]
+    \centering
+
+    % ================= ROW 1 =================
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{HNDL_C_0.png}
+        \caption{}
+        \label{fig:a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{HNDL_D_0.png}
+        \caption{}
+        \label{fig:b}
+    \end{subfigure}
+
+    \vspace{0.4cm}
+
+    % ================= ROW 2 =================
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{HNDL_C_1.png}
+        \caption{}
+        \label{fig:c}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{HNDL_D_1.png}
+        \caption{}
+        \label{fig:d}
+    \end{subfigure}
+
+    \vspace{0.4cm}
+
+    % ================= ROW 3 =================
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{HNDL_C_2.png}
+        \caption{}
+        \label{fig:e}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{HNDL_D_2.png}
+        \caption{}
+        \label{fig:f}
+    \end{subfigure}
+
+    \caption{ Illustrative HNDL exposure scenarios under different relationships between secrecy lifetime, migration duration, and CRQC realization timelines.\\
+    (a) Fixed-lifetime information-value model with secrecy lifetime $x=10$ years satisfying the condition $x+y<z$, corresponding to a conditionally secure regime under Mosca’s Inequality.\\
+    (b) Exponentially decaying information-value model with secrecy time constant $\tau = 10$ years. Residual information value persists beyond the nominal secrecy horizon, resulting in limited but non-zero HNDL exposure. In this regime, the binary interpretation of Mosca’s Inequality becomes less precise due to continuous value decay.\\
+    (c) Partial overlap between the CRQC realization timeline and a fixed-lifetime secrecy model, producing limited but deterministic HNDL compromise.\\
+    (d) Partial overlap between the CRQC realization timeline and an exponentially decaying secrecy model, resulting in temporally distributed HNDL exposure.\\
+    (e) Deterministic vulnerability regime under a fixed-lifetime secrecy model where $x+y>z$, resulting in substantial HNDL compromise.\\
+    (f) Deterministic vulnerability regime under an exponentially decaying secrecy model, producing significant initial compromise followed by gradual exposure decay.}
+
+    \label{fig:hndl_scenarios}
+
+\end{figure*}
+
+Figure~\ref{fig:hndl_scenarios} illustrates representative HNDL exposure scenarios under both fixed-lifetime and gradually decaying information-value assumptions. In these examples, adversaries initially accumulate encrypted data until reaching practical storage or resource constraints. Beyond this point, older low-value ciphertext may be discarded and replaced with newer, higher-value information, effectively maintaining a rolling HNDL exposure window.
+
+Accordingly, post-quantum risk should be interpreted not as a binary condition, but as a continuous function of both the temporal margin $\tau$ and the dynamics of ciphertext accumulation. This perspective emphasizes that the urgency of migration is driven not only by uncertainty in CRQC realization timelines, but also by the deterministic growth of HNDL exposure as migration is delayed.
 
 
 \section{Conclusions}
@@ -339,6 +431,13 @@ Recent developments in quantum cryptanalysis have placed classical public-key in
   \item \textbf{Cryptanalysis:} Continued scrutiny of lattice assumptions, structured rings, and conservative alternatives (hash-based signatures; code-based KEMs) will increase confidence in deployed systems.\cite{nist205,nistpqc}
 \end{itemize}
 
+\subsection{Mosca-Based Risk Models for HNDL Threats}
+
+As discussed previously, existing formulations of Mosca’s Inequality primarily define a threshold condition for cryptographic failure but do not fully capture the continuous accumulation of exposure associated with the HNDL threat model. Consequently, future research should investigate the development of quantitative risk models derived from Mosca’s framework that estimate the effective exposure of harvested information over time.
+
+Such models should account not only for uncertainty in the realization timeline of CRQCs, but also for the temporal value of encrypted information, data accumulation dynamics during migration periods, and the persistence of long-term confidentiality requirements. In addition, these frameworks should incorporate both quantum-enabled decryption risks and classical non-quantum threats, thereby enabling a unified assessment of cryptographic exposure across hybrid adversarial environments.
+
+A generalized Mosca-based risk framework may therefore provide a more realistic foundation for evaluating post-quantum migration urgency, HNDL impact severity, and long-term cryptographic resilience.
 \subsection{Foundational Mathematical Considerations}
 
 Modern cryptography—both classical and post-quantum—relies fundamentally on unproven computational hardness assumptions rather than formal mathematical certainties. As noted by Goldwasser and Kalai, the security of cryptographic constructions ultimately depends on conjectured intractability properties, such as the existence of one-way functions or the hardness of structured algebraic problems.\cite{goldwasser2016} These assumptions, while extensively studied, lack definitive proof.
@@ -359,7 +458,7 @@ More recently, NIST has addressed constrained environments through its lightweig
 
 Other lightweight block ciphers, such as \textit{PRESENT} and \textit{Speck}, further illustrate this landscape. PRESENT is an ultra-lightweight substitution–permutation network cipher with 64-bit blocks and 80/128-bit keys, designed for minimal hardware footprint.\cite{present2007} Speck, an ARX-based block cipher family introduced by the NSA, is optimized for software efficiency across a wide range of block and key sizes.\cite{speck2013} While both have been studied extensively and deployed in niche contexts (e.g., RFID and IoT), neither is included in NIST’s core FIPS-approved set, and Speck in particular has faced controversy regarding standardization and trust.
 
-Finally, recent FIPS publications related to post-quantum cryptography (FIPS~203--205) focus exclusively on asymmetric primitives, while the forthcoming FIPS~206 addresses digital signatures. None of these introduce new lightweight or stream cipher standards, reinforcing the observation that symmetric cryptography within FIPS remains centered on AES rather than newer lightweight or software-optimized designs.
+Finally, recent FIPS publications related to PQC (FIPS~203--205) focus exclusively on asymmetric primitives, while the forthcoming FIPS~206 addresses digital signatures. None of these introduce new lightweight or stream cipher standards, reinforcing the observation that symmetric cryptography within FIPS remains centered on AES rather than newer lightweight or software-optimized designs.
 \begin{thebibliography}{99}
 % Quantum algorithms and resource estimates
 \bibitem{shor1997} P. W. Shor, ``Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer,'' \emph{SIAM Journal on Computing}, 26(5):1484--1509, 1997. DOI:  \href{https://doi.org/10.1137/S0097539795293172}{10.1137/S0097539795293172}.
@@ -377,6 +476,12 @@ S. P. Sangeetha and N. Prameela Kumari,
 \emph{International Journal of Quantum Computing (IJQC)}, 
 vol. 3, no. 1, pp. 28--40, 2025.
 DOI: \href{https://doi.org/10.34218/IJQC_03_01_003}{10.34218/IJQC\_03\_01\_003}.
+\bibitem{ali2025}
+Ali Al-Bayaty, Marek Perkowski,
+``The impact of optimization approximation algorithms on the performance of the BHT-QAOA,''
+\emph{Academia Quantum}, 
+Volume 2; Issue 4, 2025.
+DOI: \href{https://www.doi.org/10.20935/AcadQuant7996}{doi.org/10.20935/AcadQuant799}.
 \bibitem{postquantum_grover}
 M. Ivezic, ``Grover’s Algorithm and Its Impact on Cybersecurity,''
 PostQuantum.com, Aug. 14, 2017 (updated May 2025). 
@@ -393,9 +498,10 @@ URL: \url{https://postquantum.com/post-quantum/grovers-algorithm/}.
 \bibitem{Mosca2018} MM. Mosca, "Cybersecurity in an Era with Quantum Computers: Will We Be Ready?," in IEEE Security \& Privacy, vol. 16, no. 5, pp. 38-41, September/October 2018, DOI: \href{https://doi.org/10.1109/MSP.2018.3761723}{10.1109/MSP.2018.3761723}.
 
 % NIST PQC standards
-\bibitem{nist203} NIST, ``FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism,'' Aug 13, 2024. URL: \url{https://csrc.nist.gov/pubs/fips/203/final}.
-\bibitem{nist204} NIST, ``FIPS 204: Module-Lattice-Based Digital Signature Standard,'' Aug 13, 2024. URL: \url{https://csrc.nist.gov/pubs/fips/204/final}.
-\bibitem{nist205} NIST, ``FIPS 205: Stateless Hash-Based Digital Signature Standard,'' Aug 13, 2024. URL: \url{https://csrc.nist.gov/pubs/fips/205/final}.
+\bibitem{nist202} NIST, ``FIPS 202: SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions,'' August 2015. DOI: \href{https://doi.org/10.6028/NIST.FIPS.202}{10.6028/NIST.FIPS.202}.
+\bibitem{nist203} NIST, ``FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism,'' Aug 13, 2024. DOI: \href{https://doi.org/10.6028/NIST.FIPS.203}{10.6028/NIST.FIPS.203}.
+\bibitem{nist204} NIST, ``FIPS 204: Module-Lattice-Based Digital Signature Standard,'' Aug 13, 2024. DOI: \href{https://doi.org/10.6028/NIST.FIPS.204}{10.6028/NIST.FIPS.204}.
+\bibitem{nist205} NIST, ``FIPS 205: Stateless Hash-Based Digital Signature Standard,'' Aug 13, 2024. DOI: \href{https://doi.org/10.6028/NIST.FIPS.205}{10.6028/NIST.FIPS.205}.
 \bibitem{nistpqc} NIST CSRC, ``Post-Quantum Cryptography Standardization,'' updated Dec 11, 2025. URL: \url{https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Post_Quantum_Cryptography-Standardization}.
 \bibitem{fips206status} R. Perlner (NIST), ``FIPS 206 (FN-DSA/Falcon) Status Update,'' 2025. URL: \url{https://csrc.nist.gov/csrc/media/presentations/2025/fips-206-fn-dsa-(falcon)/images-media/fips_206-perlner_2.1.pdf}.
 
@@ -447,31 +553,26 @@ DOI: \href{https://courses.csail.mit.edu/6.857/2019/files/NAE-report-on-quantum-
 \bibitem{kjaergaard2020}
 M. Kjaergaard et al., 
 ``Superconducting Qubits: Current State of Play,'' 
-\textit{Annual Review of Condensed Matter Physics}, 2020.
+\textit{Annual Review of Condensed Matter Physics}, 2020. DOI: \href{https://doi.org/10.1146/annurev-conmatphys-031119-050605}{10.1146/annurev-conmatphys-031119-050605}
 
 \bibitem{vandersypen2017}
-L. M. K. Vandersypen et al., 
-``Interfacing Spin Qubits in Quantum Dots and Donors,'' 
-\textit{npj Quantum Information}, 2017.
+Vandersypen, L.M.K., Bluhm, H., Clarke, J.S. et al. Interfacing spin qubits in quantum dots and donors—hot, dense, and coherent. npj Quantum Inf 3, 34 (2017). DOI: \href{https://doi.org/10.1038/s41534-017-0038-y}{10.1038/s41534-017-0038-y}
 
 \bibitem{aasen2016}
 D. Aasen et al., 
 ``Milestones Toward Majorana-Based Quantum Computing,'' 
-\textit{Physical Review X}, 2016.
+\textit{Physical Review X}, 2016. DOI \href{https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031016}{10.1103/PhysRevX.6.031016}
 
 \bibitem{arute2019}
-F. Arute et al., 
-``Quantum Supremacy Using a Programmable Superconducting Processor,'' 
-\textit{Nature}, 2019.
+Arute, F., Arya, K., Babbush, R. et al. Quantum supremacy using a programmable superconducting processor. \textit{Nature} 574, 505–510 (2019). DOI \href{https://doi.org/10.1038/s41586-019-1666-5}{10.1038/s41586-019-1666-5}
 
 \bibitem{krantz2019}
 P. Krantz et al., 
 ``A Quantum Engineer's Guide to Superconducting Qubits,'' 
-\textit{Applied Physics Reviews}, 2019.
+\textit{Applied Physics Reviews}, 2019. DOI \href{https://doi.org/10.1063/1.5089550}{10.1063/1.5089550}
 
 \bibitem{neon2026}
-``Solid Neon as a Noise-Resilient Host for Electron Qubits Above 100 mK,'' 
-\textit{Nature Electronics}, 2026.
+Li, X., Wang, C.S., Dizdar, B. et al. Solid neon as a noise-resilient host for electron qubits above 100 mK. Nat Electron (2026). DOI \href{https://doi.org/10.1038/s41928-026-01613-4}{10.1038/s41928-026-01613-4}
 
 \end{thebibliography}
 
