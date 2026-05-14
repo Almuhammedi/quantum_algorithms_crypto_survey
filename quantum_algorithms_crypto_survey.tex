@@ -84,6 +84,31 @@ systems, and critical infrastructure that depend on these cryptographic mechanis
 \item What challenges remain in deploying PQC algorithms in real-world systems?
 \end{enumerate}
 
+\section{Literature Review}
+
+Research on quantum cryptanalysis began with the development of algorithms capable of solving
+mathematical problems that were previously considered computationally infeasible.
+Shor's algorithm demonstrated that integer factorisation and discrete logarithms could be solved
+efficiently on a quantum computer. Later, Grover's algorithm showed that quantum computers could
+accelerate brute-force search operations.
+
+In response, researchers developed post-quantum cryptographic constructions based on lattice
+problems, hash functions, code-based cryptography, and multivariate polynomial systems.
+
+\section{Analysis of Quantum Cryptanalytic Algorithms}
+
+\subsection{Shor's Algorithm}
+
+Shor's algorithm provides a polynomial-time method for factoring integers and computing discrete
+logarithms using a quantum computer. As a result, it directly threatens widely deployed
+cryptographic systems such as RSA and elliptic curve cryptography.
+
+\subsection{Grover's Algorithm}
+
+Grover's algorithm provides a quadratic speedup for unstructured search problems. Although it
+does not completely break symmetric cryptography, it reduces the effective security level of
+symmetric keys.
+
 
 \end{thebibliography}
 \end{document}
