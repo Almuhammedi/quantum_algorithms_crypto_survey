@@ -1,7 +1,17 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\documentclass[11pt]{article}
 
-\title{Quantum Cryptanalytic Algorithms and the Transition to Post-Quantum Cryptography: A Survey of Emerging Threats and NIST PQC Standards.}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Quantum Cryptanalytic Algorithms and the Transition to Post-Quantum Cryptography:\\
+A Survey of Emerging Threats and NIST PQC Standards}
+
 \author{Tariq A, Cybersecurity Department, Sana’a University}
 \date{March 2026}
 
@@ -9,24 +19,71 @@
 
 \maketitle
 
+\begin{abstract}
+The rapid progress of quantum computing presents a potential paradigm shift in the field of cryptography.
+Many widely deployed public-key cryptographic systems rely on mathematical problems such as integer
+factorisation and discrete logarithms, which are considered computationally infeasible for classical
+computers. However, quantum algorithms demonstrate that these assumptions may not hold in the presence
+of sufficiently powerful quantum machines.
+
+This research surveys major quantum cryptanalytic algorithms and analyses their potential impact on
+classical cryptographic systems. It further reviews the emerging field of post-quantum cryptography (PQC)
+and examines the cryptographic standards recently released by the National Institute of Standards and
+Technology (NIST), including FIPS 203, FIPS 204, FIPS 205, and the forthcoming FIPS 206.
+
+The study provides an analytical overview of the quantum threat landscape and evaluates the security
+assumptions underlying the newly standardised PQC algorithms. In addition, the research discusses
+implementation considerations, remaining security challenges, and the broader implications of the
+transition toward quantum-resistant cryptographic systems.
+\end{abstract}
+
 \section{Introduction}
-Modern digital security relies heavily on public-key cryptographic systems such as RSA and Elliptic Curve Cryptography. These systems derive their security from the computational hardness of mathematical problems such as integer factorisation and the discrete logarithm problem. However, the emergence of large-scale quantum computing introduces significant threats to these cryptographic assumptions, most notably through algorithms such as Shor's Algorithm, which can efficiently solve problems previously considered intractable for classical computers.
 
-In response to these challenges, the field of Post-Quantum Cryptography has developed cryptographic schemes designed to remain secure even in the presence of quantum adversaries. To facilitate global standardisation, the National Institute of Standards and Technology initiated a multi-year evaluation process that resulted in several new standards, including FIPS 203, FIPS 204, FIPS 205, and FIPS 206.
+Modern digital security relies heavily on public-key cryptographic systems whose security is based on
+the computational difficulty of problems such as integer factorisation and discrete logarithms.
+However, the development of quantum computing introduces a new class of algorithms capable of solving
+these problems far more efficiently than classical computers. In particular, algorithms such as
+Shor's Algorithm and Grover's Algorithm pose significant threats to widely deployed cryptographic
+systems.
 
-The purpose of this research is to survey recent quantum algorithms capable of breaking classical cryptographic systems and to examine their implications for the security of newly standardised post-quantum cryptographic schemes.
+In response to these risks, the field of post-quantum cryptography has emerged to design cryptographic
+schemes that remain secure even in the presence of quantum adversaries. After a multi-year evaluation
+process, the National Institute of Standards and Technology released the first generation of
+standardised post-quantum algorithms, including FIPS 203, FIPS 204, FIPS 205, and the forthcoming
+FIPS 206.
 
-\begin{thebibliography}{99}
+This research surveys recent quantum algorithms capable of compromising classical cryptographic
+systems and examines their implications for the security and deployment of newly standardised
+post-quantum cryptographic schemes.
 
-\bibitem{tariq2026pinn}
-A.~Tariq and J.~Smith, 
-\emph{Physics-Informed Neural Networks for Industrial Process Control}, 
-IEEE Transactions on Industrial Informatics, vol.~22, no.~3, pp.~120--135, 2026.
+\section{Problem Statement}
 
-\bibitem{nist800}
-National Institute of Standards and Technology, 
-\emph{Digital Identity Guidelines}, 
-NIST Special Publication 800-63-3, 2017.
+Most currently deployed public-key cryptographic systems rely on computational hardness assumptions
+that are believed to be secure against classical computers. However, the emergence of quantum
+computing challenges these assumptions. Quantum algorithms have demonstrated the theoretical
+ability to efficiently solve certain mathematical problems that underpin classical cryptography.
+This raises serious concerns about the long-term security of digital communications, financial
+systems, and critical infrastructure that depend on these cryptographic mechanisms.
+
+\section{Objectives}
+
+\begin{itemize}
+\item Survey major quantum algorithms capable of breaking classical cryptographic systems.
+\item Analyse their impact on widely deployed cryptographic schemes.
+\item Examine the post-quantum cryptographic standards introduced by NIST.
+\item Evaluate the security assumptions underlying PQC algorithms.
+\item Identify open challenges in the transition to quantum-resistant cryptography.
+\end{itemize}
+
+\section{Research Questions}
+
+\begin{enumerate}
+\item Which quantum algorithms pose the greatest threat to classical cryptographic systems?
+\item What is their impact on RSA, Diffie–Hellman, and elliptic curve cryptography?
+\item How do newly standardised PQC algorithms mitigate these threats?
+\item What challenges remain in deploying PQC algorithms in real-world systems?
+\end{enumerate}
+
 
 \end{thebibliography}
 \end{document}
