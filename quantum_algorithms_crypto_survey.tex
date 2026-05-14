@@ -11,15 +11,10 @@
 \usepackage{array}
 \usepackage{amsmath, amssymb}
 \usepackage{xcolor}
-\hypersetup{
-  colorlinks=true,
-  linkcolor=blue,
-  citecolor=blue,
-  urlcolor=blue
-}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
 \geometry{margin=1in}
 
-\title{\textbf{Quantum Cryptanalytic Algorithms and the Transition to Post-Quantum Cryptography: A Survey of Emerging Threats and NIST PQC Standards.}}
+\title{\textbf{Quantum Cryptanalytic Algorithms and the Transition to Post-Quantum Cryptography:\\A Survey of Emerging Threats and NIST PQC Standards}}
 \author{Tariq A, Cybersecurity Department, Sana’a University}
 \date{March 2026}
 
@@ -30,71 +25,79 @@
 This survey synthesizes the latest scientific literature on quantum algorithms with cryptanalytic impact on contemporary public-key and symmetric cryptography, and consolidates current standardization progress in post-quantum cryptography (PQC). We integrate recent results on resource estimates for Shor-type factoring, Regev's improved quantum factoring framework and its elliptic-curve extension, Grover-based impacts on symmetric primitives, implementation attacks such as KyberSlash, and the status of NIST PQC standards (FIPS~203/204/205 and the developing FIPS~206). We conclude with actionable recommendations for migration, crypto-agility, and risk management against \emph{harvest-now-decrypt-later} adversaries.
 \end{abstract}
 
+\textbf{Keywords—} Post-Quantum Cryptography (PQC), Cryptanalytically Relevant Quantum Computer (CRQC), Quantum Algorithms, Shor’s Algorithm, Grover’s Algorithm, ML-KEM, ML-DSA, SLH-DSA, NIST FIPS 203–205, Lattice-Based Cryptography, Crypto-Agility, Harvest-Now-Decrypt-Later (HNDL), Lightweight Cryptography, Foundational Mathematical Risks.
 
 \section{Introduction}
-Modern digital security relies heavily on public-key cryptographic systems whose security is based on the computational difficulty of problems such as integer factorisation and discrete logarithms. However, the development of quantum computing introduces a new class of algorithms capable of solving these problems far more efficiently than classical computers. In particular, algorithms such as Shor's Algorithm and Grover's Algorithm pose significant threats to widely deployed cryptographic systems. In response to these risks, the field of post-quantum cryptography has emerged to design cryptographic schemes that remain secure even in the presence of quantum adversaries. After a multi-year evaluation process, the National Institute of Standards and Technology released the first generation of standardised post-quantum algorithms, including FIPS 203, FIPS 204, FIPS 205, and the forthcoming FIPS 206. This research surveys recent quantum algorithms capable of compromising classical cryptographic systems and examines their implications for the security and deployment of newly standardised post-quantum cryptographic schemes.
-
+Modern digital security relies on both asymmetric and symmetric cryptographic primitives. Asymmetric systems such as RSA and elliptic‑curve schemes derive their security from the difficulty of integer factorisation and discrete logarithms—problems that can be efficiently solved by Shor’s quantum algorithm, rendering these schemes entirely vulnerable to a cryptanalytically relevant quantum computer (CRQC).\cite{shor1997,regev2024,ijonest_crqc} Symmetric primitives, including AES and SHA‑2, are not broken outright by quantum algorithms; however, Grover’s algorithm provides a generic quadratic speed‑up for brute‑force search and thus reduces their effective security margins, motivating the use of larger key and digest sizes (e.g., AES‑256, SHA‑384/512) for post‑quantum robustness. \cite{grover1996,ijqc_grover,postquantum_grover}
+In response, NIST released the first generation of standardized post-quantum algorithms (FIPS~203/204/205) and announced a forthcoming signature standard (FIPS~206) to strengthen long-term security postures.\cite{nist203,nist204,nist205,fips206status}
 
 \section{Problem Statement}
-A cryptanalytically relevant quantum computer (CRQC) would break widely deployed public-key systems based on integer factorization and discrete logarithms. Even before such a device exists, adversaries can mount \emph{harvest-now-decrypt-later} (HNDL) attacks by storing encrypted traffic today for future decryption. Organizations must therefore transition to quantum-resistant algorithms in a timely and risk-informed manner while ensuring secure implementations resistant to classical side channels.
+A cryptanalytically relevant quantum computer (CRQC) would break widely deployed public-key systems based on integer factorization and discrete logarithms, endangering confidentiality and authenticity of internet-scale systems.\cite{nist_crqc,cisa_crqc,ijonest_crqc} Even before such a device exists, adversaries can mount \emph{harvest-now-decrypt-later} (HNDL) attacks by storing encrypted traffic today for future decryption—elevating the urgency of PQC migration for data with long confidentiality lifetimes.\cite{hndl-fed}
 
 \section{Objectives and Research Questions}
 \begin{itemize}[leftmargin=*]
   \item Identify the quantum algorithms that most critically threaten current cryptosystems and summarize state-of-the-art resource estimates.
   \item Review the status and technical properties of NIST-standardized and in-development PQC schemes.
-  \item Analyze the practical threat from Grover's algorithm to symmetric encryption and hashing, and discuss recommended parameter choices.
+  \item Analyze the practical threat from Shor's and Grover's algorithms to asymmetric, symmetric encryption and hashing, and discuss recommended parameter choices.
   \item Highlight recent implementation-level attacks (e.g., KyberSlash) and extract lessons for secure PQC deployment.
-  \item Provide migration recommendations and a research outlook.
+  \item Provide migration recommendations and a research outlook grounded in current guidance.
 \end{itemize}
 
 \section{Literature Review}
 \subsection{Shor-type Factoring and Resource Estimates}
-Shor's 1994 algorithm established a polynomial-time quantum method for factoring and discrete logarithms. Modern resource estimates incorporate error correction and layout constraints. A widely cited 2019--2021 estimate by Gidney and Ekerå suggested RSA-2048 could be factored in roughly 8 hours on a device with about 20 million noisy physical qubits under surface-code assumptions. In May 2025, Gidney reported a refined construction using approximate residue arithmetic, yoked surface codes for storage, and magic-state cultivation, reducing the qubit requirement to below one million at the cost of a longer runtime (on the order of a week) under the same physical assumptions. In Feb 2026, a preprint introducing a QLDPC-based \emph{Pinnacle} architecture claimed a further order-of-magnitude reduction (to $\sim$100,000 physical qubits) with significant architectural demands and a longer runtime (month-scale). These advances emphasize that algorithmic and architectural innovation can shift feasibility thresholds even without new physics.
+Shor's algorithm provides a polynomial-time quantum method for factoring and discrete logarithms. Contemporary resource estimates incorporating error correction indicate rapid progress: Gidney estimates sub-million-physical-qubit factoring of RSA-2048 in under a week (under specific hardware assumptions), while earlier baselines required tens of millions of qubits; QLDPC-based proposals (\emph{Pinnacle}) claim further reductions to about $\sim 10^5$ physical qubits at the cost of tougher architectural demands and longer runtimes.\cite{shor1997,gidney2025,webster2026}
 
 \subsection{Regev's Efficient Quantum Factoring and Elliptic Curves}
-Regev (2023/2024) proposed a factoring approach with gate complexity $\tilde{O}(n^{3/2})$ per run and $\tilde{O}(\sqrt{n})$ repetitions, relying on a heuristic number-theoretic assumption, with subsequent analyses and implementations exploring space/noise tradeoffs. In 2025, Barbulescu, Barcau, and Pa\c{s}ol extended Regev's framework to elliptic-curve discrete logarithms (ECDLP) and discussed parameter regimes where it could asymptotically outperform Shor on EC instances, while also delineating instances where Regev may fail for certain RSA moduli and conditions for success under Gaussian heuristics.
+Regev introduced a factoring framework with gate complexity $\tilde{O}(n^{3/2})$ per run and $\tilde{O}(\sqrt{n})$ repetitions under a heuristic number-theoretic assumption, with analyses exploring space/noise trade-offs and practical considerations.\cite{regev2024} Subsequently, Barbulescu, Barcau, and Pa\c{s}ol extended this framework to elliptic-curve discrete logarithms (ECDLP), identifying parameter regimes where it may outperform Shor asymptotically and describing instances of failure/success under specific heuristics.\cite{barbulescu2025}
 
 \subsection{Grover's Algorithm and Symmetric Primitives}
-Grover's algorithm provides a quadratic speed-up for unstructured search, implying that an idealized key search over a $k$-bit key space requires about $2^{k/2}$ evaluations. Practical assessments incorporate circuit depth, parallelization limits, and error-correction overheads; contemporary analyses suggest that while Grover reduces \emph{asymptotic} security, the wall-clock cost remains enormous for well-chosen parameters. Consequently, AES-256 and SHA-384/512 remain robust targets against quantum adversaries, with many policies recommending at least AES-256 for long-lived confidentiality.
+Grover's algorithm yields a quadratic speed-up for unstructured search; in cryptography this implies that idealized key search over a $k$-bit key space requires roughly $2^{k/2}$ evaluations.\cite{grover1996,grovercost} This reduction affects all symmetric primitives, including block ciphers, MACs, and hash functions. However, unlike Shor’s algorithm for RSA and ECC—which completely breaks those schemes—a quadratic speed‑up merely reduces effective security, rather than eliminating it outright.
+
+\subsection{NIST Guidance on Symmetric Security in the Quantum Era}
+NIST key‑management recommendations and cost analyses provide baseline
+guidance for selecting symmetric-key parameters suitable for long‑lived
+data in the presence of quantum adversaries, including the use of AES‑256
+and SHA‑384/512 to retain adequate post‑quantum security margins.\cite{sp80057}
 
 \section{Analysis of Quantum Cryptanalytic Algorithms}
 \subsection{RSA and Finite-Field DLP}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Shor + surface code baselines.} RSA-2048 factoring feasibility has been linked historically to multi-million-qubit machines; recent work compresses qubit counts by trading space for time and optimizing non-Clifford resources.
-  \item \textbf{Under one million qubits.} The 2025 analysis places sub-million-qubit factoring within week-scale runtime under optimistic hardware parameters and aggressive error-correction techniques.
-  \item \textbf{QLDPC pathways.} The Pinnacle architecture posits $\sim$100k physical qubits with month-scale runtimes but requires fast QLDPC decoding and non-local connectivity not yet demonstrated at scale.
+  \item \textbf{Shor + surface-code baselines.} RSA-2048 factoring feasibility was historically tied to multi-million-qubit machines; more recent analyses compress qubit counts by trading space for time and optimizing non-Clifford resources.\cite{gidney2025}
+  \item \textbf{Under one million qubits.} Sub-million-qubit executions with week-scale runtimes become plausible under optimistic hardware parameters and advanced error-correction strategies.\cite{gidney2025}
+  \item \textbf{QLDPC pathways.} QLDPC-based architectures aim for $\sim\!10^5$ physical qubits with month-scale runtime but require fast decoding and non-local connectivity not yet shown at scale.\cite{webster2026}
 \end{itemize}
 
 \subsection{Elliptic-Curve Cryptography}
-Shor's algorithm breaks ECDLP in polynomial time on a CRQC. Regev-style methods may yield asymptotic improvements under stated assumptions, with early indications of feasibility for certain standard curves; however, practical superiority relative to state-of-practice Shor implementations remains unsettled and highly dependent on constants, architectures, and heuristics.
+Shor's algorithm breaks ECDLP in polynomial time on a CRQC; Regev-style methods may yield asymptotic improvements under stated assumptions, though practical superiority depends on constants, architectures, and instance structure.\cite{shor1997,regev2024,barbulescu2025}
 
 \subsection{Symmetric Ciphers and Hashes}
-For symmetric primitives, Grover suggests doubling key length to offset the quadratic speed-up in the idealized oracle model. In practice, the cost model requires considering parallelization inefficiencies and error-correction costs; conservative guidance for long-lived data is to use AES-256 and SHA-384/512, while monitoring evolving physical resource estimates for quantum AES circuits.
+In principle, Grover motivates doubling key length to offset the quadratic speed-up; in practice, parallelization limits and error-correction costs determine wall-clock feasibility. Conservative guidance for long-lived data favors AES-256 for confidentiality and SHA-384/512 for integrity.\cite{grovercost,sp80057}
 
 \section{Post-Quantum Cryptography and NIST Standards}
 \subsection{Finalized PQC Standards (Aug 13, 2024)}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{FIPS 203 (ML-KEM):} Kyber-derived lattice KEM (MLWE), with parameter sets ML-KEM-512/768/1024.
-  \item \textbf{FIPS 204 (ML-DSA):} Dilithium-derived lattice digital signatures (Module-SIS/MLWE).
-  \item \textbf{FIPS 205 (SLH-DSA):} Stateless hash-based signatures (SPHINCS+), a conservative backup.
+  \item \textbf{FIPS 203 (ML-KEM):} Kyber-derived module-lattice KEM; three parameter sets (512/768/1024) and IND-CCA security.\cite{nist203}
+  \item \textbf{FIPS 204 (ML-DSA):} Dilithium-derived lattice signatures (Module-LWE/Module-SIS) intended as the mainline signature for general use.\cite{nist204}
+  \item \textbf{FIPS 205 (SLH-DSA):} Stateless hash-based signatures (SPHINCS+) providing a conservative, structurally diverse fallback.\cite{nist205}
 \end{itemize}
+
 \subsection{In-Development and Additional Selections}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{FIPS 206 (FN-DSA / Falcon):} NTRU-lattice signatures with compact signatures; draft in preparation with attention to floating-point sampling, validation, and side-channel hardening.
-  \item \textbf{Code-based KEMs:} NIST selected HQC (2025) for standardization to diversify KEM families beyond lattices.
+  \item \textbf{FIPS 206 (FN-DSA / Falcon):} NTRU-lattice signatures with compact outputs; draft status and validation considerations documented by NIST.\cite{fips206status}
+  \item \textbf{Code-based KEMs:} NIST selected HQC in 2025 to diversify KEM families beyond lattices in the standardization pipeline.\cite{nistpqc}
 \end{itemize}
 
 \begin{table}[h]
 \centering
-\begin{tabular}{@{}p{3.2cm}p{3.8cm}p{6.8cm}@{}}
+\begin{tabular}{@{}p{2.5cm}p{3.5cm}p{7.3cm}@{}}
 \toprule
 \textbf{Standard} & \textbf{Primitive} & \textbf{Notes} \\
 \midrule
-FIPS 203 (ML-KEM) & KEM (MLWE) & Kyber; 3 parameter sets; widespread adoption in TLS hybrids and early deployments. \\
-FIPS 204 (ML-DSA) & Signature (Module-SIS/MLWE) & Dilithium; fast, simple integer arithmetic; mainline signature for general use. \\
-FIPS 205 (SLH-DSA) & Signature (Hash-based) & SPHINCS+; large signatures, strong conservative fallback. \\
-FIPS 206 (FN-DSA) & Signature (NTRU-lattice) & Falcon-like; in development; very small signatures; careful FP and validation requirements. \\
-HQC (in pipeline) & KEM (Code-based) & Diversifies beyond lattices; selection announced 2025. \\
+FIPS 203 \\(ML-KEM) & KEM (MLWE) & Kyber; three parameter sets; early protocol integration and testing in hybrids.\\
+FIPS 204 \\(ML-DSA) & Signature (Module-SIS/MLWE) & Dilithium; general-purpose PQ signatures with strong implementation guidance.\\
+FIPS 205 \\(SLH-DSA) & Signature (Hash-based) & SPHINCS+; large signatures but structurally conservative fallback.\\
+FIPS 206 \\(FN-DSA) & Signature (NTRU-lattice) & Falcon-like; draft in progress with floating-point/validation caveats.\\
+HQC \\(pipeline) & KEM (Code-based) & Diversifies beyond lattices; selection announced 2025.\\
 \bottomrule
 \end{tabular}
 \caption{NIST PQC standards status (as of early 2026).}
@@ -102,69 +105,130 @@ HQC (in pipeline) & KEM (Code-based) & Diversifies beyond lattices; selection an
 
 \section{Results and Discussion}
 \subsection{Risk Posture and Timelines}
-Recent reductions in qubit estimates for RSA-2048 factoring (from $\sim$20M to $<1$M and potentially $\sim$100k with QLDPC) compress perceived timelines for CRQC feasibility. While these analyses rely on optimistic but not impossible hardware assumptions, their trendline strengthens the HNDL risk model. Long-lived data encrypted today with vulnerable public-key schemes may be at risk if not rekeyed to PQC.
+Recent reductions in qubit estimates for RSA-2048 factoring (from \(\sim\!20\) million to below one million, and potentially to \(\sim\!10^5\) under QLDPC assumptions) compress perceived timelines for CRQC feasibility.\cite{gidney2025,webster2026} Given HNDL, long-lived data encrypted today with vulnerable public-key schemes may be at risk if not rekeyed to PQC.\cite{hndl-fed}
 
 \subsection{Implementation Attacks: KyberSlash}
-The KyberSlash timing attacks (KyberSlash1/2) target secret-dependent division timings in some Kyber (ML-KEM) implementations (including reference code prior to late-2023 patches). Practical key recovery was demonstrated on Cortex-A7 and Cortex-M4 under repeated decapsulation, with patches deployed across major libraries. The scheme remains sound; the lesson is that \emph{constant-time, constant-memory-access} implementations and rigorous validation are mandatory for PQC rollouts.
+The KyberSlash timing attacks (KyberSlash1/2) target secret-dependent division timings in some Kyber (ML-KEM) implementations (including reference code prior to late-2023 patches), demonstrating practical key recovery on Cortex-A7/M4 under repeated decapsulation. The scheme remains sound; the lesson is that \emph{constant-time, constant-memory-access} implementations and rigorous validation are mandatory for PQC rollouts.\cite{kyberslash}
 
 \subsection{Operational Guidance for Symmetric Primitives}
-Given Grover's implications and practical cost estimates, organizations should prefer AES-256 for confidentiality with long lifetimes and SHA-384/512 for hashing, while recognizing that Grover does not parallelize linearly and that real-world costs under error correction are far higher than idealized oracle counts.
+Given Grover’s quadratic speedup for key search, the effective post-quantum
+security of a $k$-bit symmetric key is reduced to roughly $k/2$ bits. This
+motivates the use of AES-256 for long-lived confidentiality, as it maintains
+approximately 128 bits of post-quantum strength. 
+
+For hash-based constructions, it is important to distinguish preimage and
+collision security. Grover’s algorithm reduces preimage resistance from $n$
+bits to $2^{n/2}$ operations, but collision resistance is governed not by
+Grover but by the Brassard–Høyer–Tapp (BHT) quantum collision algorithm,
+which reduces the cost of collision search to approximately $2^{n/3}$.
+Consequently, shorter digests such as SHA-256 provide limited long-term
+collision security in the quantum setting, whereas SHA-384/512 retain
+adequate margins. Consistent with NIST’s key-management recommendations,
+AES-256 and SHA-384/512 are preferred for long-lived post-quantum protection.\cite{bht1997}
 
 \section{Conclusions}
-Quantum cryptanalysis places asymmetric cryptography on a deprecation path. Rapid progress in algorithmic resource estimates underscores the urgency of migrating to PQC while maintaining secure implementations. The NIST PQC standards (FIPS~203--205) provide stable building blocks; FIPS~206 and HQC will further improve algorithmic diversity.
+Quantum cryptanalysis places many classical public-key algorithms on a deprecation path. Rapid progress in resource estimates and the emergence of standardized PQC building blocks underscore the urgency of migration.\cite{gidney2025,webster2026} The NIST PQC standards (FIPS~203--205) provide stable primitives; FIPS~206 and HQC will further improve algorithmic diversity as deployments mature.\cite{nist203,nist204,nist205,fips206status,nistpqc}
 
 \section{Recommendations}
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Adopt standardized PQC now:} Prioritize ML-KEM (FIPS~203) for key establishment and ML-DSA (FIPS~204) for signatures; use SLH-DSA (FIPS~205) where conservative assurance is needed.
-  \item \textbf{Deploy hybrid modes:} Use hybrid (classical+PQC) in protocols (e.g., TLS 1.3) during transition for defense-in-depth.
-  \item \textbf{Harden implementations:} Enforce constant-time coding, side-channel testing, and validated libraries; ensure prompt patching (e.g., KyberSlash mitigations) and independent verification.
-  \item \textbf{Strengthen symmetric baselines:} Prefer AES-256 and SHA-384/512 for long-lived confidentiality/integrity; reevaluate key lifetimes under HNDL.
-  \item \textbf{Build crypto-agility:} Inventory cryptographic dependencies (CBOM), automate certificate lifecycle, and design for algorithm agility.
-  \item \textbf{Monitor research:} Track resource-estimate updates (e.g., sub-million-qubit factoring), FIPS~206 progress, and code-based KEM maturation (HQC).
+  \item \textbf{Adopt standardized PQC now:} Prioritize ML-KEM (FIPS~203) for key establishment and ML-DSA (FIPS~204) for signatures; use SLH-DSA (FIPS~205) where conservative assurance is needed.\cite{nist203,nist204,nist205}
+  \item \textbf{Deploy hybrid modes:} Use hybrid (classical+PQC) in protocols (e.g., TLS 1.3) during transition for defense-in-depth.\cite{nistpqc}
+  \item \textbf{Harden implementations:} Enforce constant-time coding, side-channel testing, and validated libraries; ensure prompt patching (e.g., KyberSlash mitigations) and independent verification.\cite{kyberslash}
+  \item \textbf{Strengthen symmetric baselines:} Prefer AES-256 and SHA-384/512 for long-lived confidentiality/integrity; reevaluate key lifetimes under HNDL.\cite{grovercost,sp80057,hndl-fed}
+  \item \textbf{Build crypto-agility:} Inventory cryptographic dependencies (CBOM), automate certificate lifecycle, and design for algorithm agility aligned with transition guidance.\cite{sp80057}
+  \item \textbf{Monitor research:} Track resource-estimate updates (e.g., sub-million-qubit factoring), FIPS~206 progress, and code-based KEM maturation (HQC).\cite{gidney2025,fips206status,nistpqc}
 \end{enumerate}
 
 \section{Challenges and Future Research}
+
+\subsection{Technical and Implementation Challenges}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Error-correction engineering:} Demonstrating fast, scalable QLDPC decoding and robust fault-tolerant operation.
-  \item \textbf{Efficient PQC implementations:} Reducing footprint and energy on constrained devices while maintaining side-channel resistance.
-  \item \textbf{Protocol integration:} Optimizing certificate chains, handshake sizes, and fallback strategies with ML-DSA/FN-DSA and ML-KEM/HQC.
-  \item \textbf{Cryptanalysis:} Continued scrutiny of lattice assumptions, structured rings, and conservative alternatives (hash-based signatures; code-based KEMs).
+  \item \textbf{Error-correction engineering:} Demonstrating fast, scalable QLDPC decoding and robust fault-tolerant operation remains a central challenge.\cite{webster2026}
+  \item \textbf{Efficient PQC implementations:} Reducing footprint and energy on constrained devices while maintaining side-channel resistance is essential for practical deployments.\cite{nist203,nist204,nist205}
+  \item \textbf{Protocol integration:} Optimizing certificate chains, handshake sizes, and fallback strategies with ML-DSA/FN-DSA and ML-KEM/HQC to fit diverse operational environments.\cite{fips206status,nistpqc}
+  \item \textbf{Cryptanalysis:} Continued scrutiny of lattice assumptions, structured rings, and conservative alternatives (hash-based signatures; code-based KEMs) will increase confidence in deployed systems.\cite{nist205,nistpqc}
+\end{itemize}
+
 \subsection{PQC Immaturity and Lattice Monoculture Risk}
-Although the 2024 NIST PQC standards represent a milestone in cryptographic modernization, the ecosystem remains technically immature and disproportionately dependent on lattice-based assumptions. With ML-KEM and ML-DSA forming two of the three finalized NIST algorithms, global deployments risk a lattice monoculture, wherein a single-family vulnerability could trigger systemic collapse across cryptographic infrastructures. This concern is magnified by early evidence of implementation fragility, illustrated by the KyberSlash timing attacks that enabled full secret-key recovery in certain ML-KEM decapsulation implementations. Furthermore, analyses of PQC deployment show lattice-based primitives impose substantial architectural burdens—such as MTU fragmentation and hardware saturation—highlighting the immaturity of infrastructure to support PQC at scale. Strategic surveys emphasize the need for algorithmic diversity and crypto-agility to mitigate correlated-failure risk, leading NIST to introduce HQC and prepare Falcon as alternative standards.
+Because two of the three finalized NIST PQC standards are lattice-based (ML-KEM and ML-DSA), early deployments may concentrate risk in a single mathematical family; maintaining algorithmic diversity (e.g., via SLH-DSA and forthcoming HQC/FN-DSA) mitigates correlated failure modes.\cite{nist203,nist204,nist205,fips206status,nistpqc}
 
 \subsection{Foundational Mathematical Risks}
-Cryptography fundamentally relies on assumptions of mathematical hardness rather than proven theorems. Many widely used primitives---including RSA, ECC, and modern hash functions---depend on the belief that certain problems cannot be solved efficiently. However, breakthroughs in the underlying mathematics could invalidate these assumptions entirely. One example is the Riemann Hypothesis (RH), whose resolution could provide deeper insights into the distribution of prime numbers. While a proof alone may not immediately break RSA, associated algorithmic advances could dramatically weaken prime factorization, reducing the security margin of RSA-based systems. Even more catastrophic would be a resolution of the P vs NP question. If it were proven that P = NP, many classes of problems currently thought intractable could be solved in polynomial time, rendering nearly all modern encryption, hashing, and signature schemes insecure, regardless of hardware or quantum capabilities. These foundational risks highlight that cryptographic security is not solely a technological challenge but also a mathematical one, reinforcing the importance of maintaining crypto-agility, algorithmic diversity, and long-term research into hardness assumptions.
+Modern cryptography is built upon unproven computational hardness assumptions rather than formal mathematical theorems. As highlighted by Goldwasser and Kalai, the security of nearly all cryptographic schemes ultimately reduces to conjectured intractability assumptions—such as the existence of one-way functions or the hardness of number-theoretic problems—and these assumptions lack definitive mathematical evidence.\cite{goldwasser2016}
+
+Consequently, breakthroughs in number theory (e.g., new structural insights into prime distribution) or in complexity theory (such as a resolution of the P vs.\ NP question) could undermine the foundations on which cryptographic constructions rely and invalidate even provably secure reductions. This fragility applies to both classical and post-quantum
+schemes, including symmetric constructions that depend on assumptions about the absence of unexpected algorithmic shortcuts. These considerations reinforce the strategic need for crypto-agility, diversification of hardness assumptions across distinct mathematical families, and continued scrutiny of the theoretical underpinnings of cryptographic primitives.
 
 \subsection{Lightweight Cryptography and the Absence of FIPS-Approved Stream Ciphers}
-
-A significant challenge in deploying secure cryptography on constrained platforms—such as mobile devices, embedded systems, and industrial control systems (ICS)—is the absence of lightweight, energy-efficient symmetric algorithms within the current NIST FIPS portfolio. Despite the widespread adoption of ChaCha20-Poly1305 in modern Internet protocols, including TLS 1.3, ChaCha20 is not included in any NIST Federal Information Processing Standard (FIPS) and is therefore not permitted in FIPS-validated environments. Independent analyses confirm that ChaCha20 is absent from NIST’s approved list of validated algorithms due to the fact that NIST has not certified any stream cipher for federal use. \cite{nist_chacha20_missing}
-
-Furthermore, multiple expert discussions note that NIST currently approves \emph{no} stream cipher under any FIPS publication. Instead, AES—particularly in authenticated modes such as AES-GCM and AES-CCM—remains the sole FIPS-approved option for symmetric encryption, while legacy algorithms like 3DES are limited to decryption of existing data. \cite{nist_no_streamcipher} This constraint poses difficulties for low-power hardware lacking AES acceleration, where ChaCha20 would normally offer substantial performance and energy efficiency advantages.
-
-Notably, the recently finalized post-quantum cryptography standards (FIPS 203, 204, and 205) do not include any lightweight symmetric primitives. These standards exclusively define post-quantum key establishment and signature schemes (ML-KEM, ML-DSA, and SLH-DSA), with no provision for lightweight encryption suited to constrained environments. \cite{nist_pqc_fips} Similarly, the forthcoming FIPS 206 for FN-DSA (Falcon) focuses exclusively on signatures and does not address lightweight symmetric needs. \cite{nist_fn_dsa}
-
-This gap reveals a strategic limitation in current FIPS-approved cryptography. While ChaCha20-Poly1305 is widely deployed in the commercial cryptographic ecosystem due to its speed and suitability for mobile and embedded systems, regulatory restrictions prevent its adoption in federally regulated systems or any environment requiring validated cryptographic modules. Addressing this discrepancy may require NIST to validate ChaCha20 formally, or to elevate candidates from the NIST Lightweight Cryptography (LWC) project into future FIPS standards, thus enabling safer and more efficient cryptography for constrained environments.\end{itemize}
-
+A significant challenge in constrained platforms (mobile, embedded, ICS) is the absence of FIPS-approved lightweight symmetric algorithms such as ChaCha20. NIST’s core guidance documents for approved mechanisms list AES (and legacy TDEA for decryption) but no stream ciphers for federal use.\cite{sp800175b,sp800131a}
+By contrast, ChaCha20-Poly1305 is widely standardized and deployed in the IETF but remains non-FIPS—see the IETF specification (RFC~8439) and the original peer-reviewed design paper introducing ChaCha.\cite{rfc8439,bernstein2008}
+The 2024 PQC FIPS (203--205) likewise do not introduce lightweight symmetric primitives, and the upcoming FIPS~206 concerns signatures, not symmetric ciphers.
 \begin{thebibliography}{99}
+% Quantum algorithms and resource estimates
+\bibitem{shor1997} P. W. Shor, ``Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer,'' \emph{SIAM Journal on Computing}, 26(5):1484--1509, 1997. DOI: 10.1137/S0097539795293172.
+\bibitem{grover1996} L. K. Grover, ``A fast quantum mechanical algorithm for database search,'' in \emph{Proceedings of STOC '96}, pp. 212--219, 1996.
+\bibitem{bht1997}
+G. Brassard, P. Høyer, and A. Tapp,
+``Quantum Algorithm for the Collision Problem,''
+in \emph{LATIN '98: Theoretical Informatics}, 
+Lecture Notes in Computer Science, vol. 1380, 
+Springer, pp. 163--169, 1998. 
+arXiv:quant-ph/9705002.
+\bibitem{ijqc_grover}
+S. P. Sangeetha and N. Prameela Kumari,
+``A Comprehensive Literature Review on Grover’s Algorithm and Query Complexity Using Quantum Computing,''
+\emph{International Journal of Quantum Computing (IJQC)}, 
+vol. 3, no. 1, pp. 28--40, 2025.
+DOI: \href{https://doi.org/10.34218/IJQC_03_01_003}{10.34218/IJQC\_03\_01\_003}.
+\bibitem{postquantum_grover}
+M. Ivezic, ``Grover’s Algorithm and Its Impact on Cybersecurity,''
+PostQuantum.com, Aug. 14, 2017 (updated May 2025). 
+URL: \url{https://postquantum.com/post-quantum/grovers-algorithm/}.
 \bibitem{gidney2025} C. Gidney, ``How to factor 2048 bit RSA integers with less than a million noisy qubits,'' \emph{arXiv:2505.15917}, 2025. URL: \url{https://arxiv.org/abs/2505.15917}.
 \bibitem{webster2026} P. Webster et al., ``The Pinnacle Architecture: Reducing the cost of breaking RSA-2048 to 100{,}000 physical qubits using quantum LDPC codes,'' \emph{arXiv:2602.11457}, 2026. URL: \url{https://arxiv.org/abs/2602.11457}.
 \bibitem{regev2024} O. Regev, ``An Efficient Quantum Factoring Algorithm,'' \emph{arXiv:2308.06572}, v3, 2024. URL: \url{https://arxiv.org/abs/2308.06572}.
-\bibitem{barbulescu2025} R. Barbulescu, M. Barcau, V. Pa\c{s}ol, ``Extending Regev’s quantum algorithm to elliptic curves,'' in \emph{LATINCRYPT 2025}, LNCS 16129, 2025. DOI: 10.1007/978-3-032-06754-8\_9.
+\bibitem{barbulescu2025} R. Barbulescu, M. Barcau, V. Pa\c{s}ol, ``Extending Regev’s quantum algorithm to elliptic curves,'' in \emph{LATINCRYPT 2025}, LNCS 16129, 2025. DOI: \href{https://dl.acm.org/doi/abs/10.1007/978-3-032-06754-8_9}{10.1007/978-3-032-06754-8\_9}.
+
+% NIST PQC standards
 \bibitem{nist203} NIST, ``FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism,'' Aug 13, 2024. URL: \url{https://csrc.nist.gov/pubs/fips/203/final}.
 \bibitem{nist204} NIST, ``FIPS 204: Module-Lattice-Based Digital Signature Standard,'' Aug 13, 2024. URL: \url{https://csrc.nist.gov/pubs/fips/204/final}.
 \bibitem{nist205} NIST, ``FIPS 205: Stateless Hash-Based Digital Signature Standard,'' Aug 13, 2024. URL: \url{https://csrc.nist.gov/pubs/fips/205/final}.
 \bibitem{nistpqc} NIST CSRC, ``Post-Quantum Cryptography Standardization,'' updated Dec 11, 2025. URL: \url{https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Post_Quantum_Cryptography-Standardization}.
 \bibitem{fips206status} R. Perlner (NIST), ``FIPS 206 (FN-DSA/Falcon) Status Update,'' 2025. URL: \url{https://csrc.nist.gov/csrc/media/presentations/2025/fips-206-fn-dsa-(falcon)/images-media/fips_206-perlner_2.1.pdf}.
+
+% Attacks and symmetric guidance
 \bibitem{kyberslash} D. J. Bernstein et al., ``KyberSlash: Exploiting secret-dependent division timings in Kyber implementations,'' \emph{IACR TCHES 2025(2)}, 209--234. Preprint 2024/1049. URL: \url{https://eprint.iacr.org/2024/1049}.
 \bibitem{grovercost} S. D. and P. C., ``On the practical cost of Grover for AES key recovery,'' NIST PQC Conference V (paper), 2024. URL: \url{https://csrc.nist.gov/csrc/media/Events/2024/fifth-pqc-standardization-conference/documents/papers/on-practical-cost-of-grover.pdf}.
-\bibitem{sp80057} NIST, ``SP 800-57 Part 1 Rev.5: Recommendation for Key Management,'' May 2020. URL: \url{https://doi.org/10.6028/NIST.SP.800-57pt1r5}.
-\bibitem{cisa} CISA, ``Post-Quantum Cryptography Initiative,'' 2026. URL: \url{https://www.cisa.gov/topics/risk-management/quantum}.
-\bibitem{hndl-fed} J. Mascelli, M. Rodden, ``\emph{Harvest Now Decrypt Later}: Examining PQC and Data Privacy Risks for Distributed Ledger Networks,'' Federal Reserve FEDS 2025-093, 2025. URL: \url{https://doi.org/10.17016/FEDS.2025.093}.
-\bibitem{nist_chacha20_missing}Gh0stFish. “Why Are ChaCha20 TLS Ciphers Not Compliant with NIST Guidelines and FIPS/HIPAA Standards?” Information Security Stack Exchange, Dec. 2024. URL: \url{https://security.stackexchange.com/questions/279843/why-are-chacha20-tls-ciphers-not-compliant-with-the-nist-guidelines-and-fips-hip}. 
-\bibitem{nist_no_streamcipher} Information Security Stack Exchange. “No NIST-Approved Stream Ciphers as of 2024.” Discussion confirming NIST approval limited to AES-based block ciphers.
-\bibitem{nist_pqc_fips} NIST CSRC. “Announcing Approval of Three Federal Information Processing Standards (FIPS) for Post-Quantum Cryptography.” Aug. 13, 2024. URL: \url{https://csrc.nist.gov/News/2024/postquantum-cryptography-fips-approved}.
-\bibitem{nist_fn_dsa} NIST News. “NIST Releases First 3 Finalized Post-Quantum Encryption Standards.” Aug. 13, 2024. URL: \url{https://www.nist.gov/news-events/news/2024/08/nist-releases-first-3-finalized-post-quantum-encryption-standards}.
+\bibitem{sp80057} NIST, ``SP 800-57 Part 1 Rev.5: Recommendation for Key Management,'' May 2020. DOI: 10.6028/NIST.SP.800-57pt1r5.
 
+% HNDL
+\bibitem{hndl-fed} J. Mascelli, M. Rodden, ``\emph{Harvest Now Decrypt Later}: Examining PQC and Data Privacy Risks for Distributed Ledger Networks,'' Federal Reserve FEDS 2025-093, 2025. DOI: 10.17016/FEDS.2025.093.
+
+% CRQC
+\bibitem{nist_crqc}
+NIST, “NIST Post-Quantum Cryptography Standardization and NSM 10,” 
+National Security Memorandum PQC Briefing, 2022. 
+URL: \url{https://csrc.nist.gov/csrc/media/Presentations/2022/nsm-10/10-Scholl%20and%20Cohen%20Day2%20215pm%20National%20Security%20Memo%2010.pdf}
+\bibitem{cisa_crqc}
+CISA, “Post-Quantum Considerations for Operational Technology,” 
+Cybersecurity and Infrastructure Security Agency, Oct. 2024. 
+URL: \url{https://www.cisa.gov/sites/default/files/2024-10/Post-Quantum%20Considerations%20for%20Operational%20Technology%20(508).pdf}.
+\bibitem{ijonest_crqc}
+A. Geremew and A. Mohammad,
+``Preparing Critical Infrastructure for Post-Quantum Cryptography: Strategies for Transitioning Ahead of Cryptanalytically Relevant Quantum Computing,''
+\emph{International Journal on Engineering, Science and Technology (IJonEST)}, 
+vol. 6, no. 4, pp. 338--365, 2024.
+doi: \href{https://doi.org/10.46328/ijonest.240}{10.46328/ijonest.240}.
+
+% Foundational Mathematical Risks references
+\bibitem{goldwasser2016}
+S. Goldwasser and Y. T. Kalai,
+``Cryptographic Assumptions: A Position Paper,''
+in \emph{TCC 2016-A}, LNCS 9562, pp. 505–522, 2016.
+% Lightweight / FIPS mechanism references
+\bibitem{sp800175b} NIST, ``SP 800-175B Rev.1: Guideline for Using Cryptographic Standards in the Federal Government: Cryptographic Mechanisms,'' March 2020. DOI: 10.6028/NIST.SP.800-175Br1.
+\bibitem{sp800131a} NIST, ``SP 800-131A Rev.2: Transitioning the Use of Cryptographic Algorithms and Key Lengths,'' March 2019. DOI: 10.6028/NIST.SP.800-131Ar2.
+\bibitem{rfc8439} Y. Nir and A. Langley, ``RFC 8439: ChaCha20 and Poly1305 for IETF Protocols,'' June 2018.
+\bibitem{bernstein2008} D. J. Bernstein, ``ChaCha, a variant of Salsa20,'' in \emph{Fast Software Encryption (FSE 2008)}, 2008.
 \end{thebibliography}
 
 \end{document}
