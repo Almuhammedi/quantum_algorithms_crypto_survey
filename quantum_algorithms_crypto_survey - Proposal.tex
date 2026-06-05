@@ -1,0 +1,60 @@
+% https://www.overleaf.com/project/69aeea68fae2d6c23f22ee94
+
+% !TEX TS-program = pdflatex
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{amsmath, amssymb}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{pdflscape}
+\usepackage{subcaption}
+\usepackage{float}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\geometry{margin=1in}
+
+\title{\textbf{The Quantum Cryptanalytic Threat Landscape and Post-Quantum Migration:\\An Analytical Survey of Hardware Realities, NIST Standards, and Continuous Risk Frameworks}}
+\author{Tariq A, Cybersecurity Department, Sana’a University}
+\date{May 2026}
+\begin{document}
+\maketitle
+\subsection{Problem Statement}
+Classical cryptographic infrastructures remain fundamentally vulnerable to future cryptanalytically relevant quantum computers (CRQCs), while the timeline for practical quantum cryptanalysis is increasingly uncertain due to rapid advances in quantum algorithms, fault-tolerant architectures, and hardware engineering. Existing post-quantum migration analyses often rely on simplified threshold-based interpretations of cryptographic risk, such as Mosca’s Inequality, and may insufficiently capture the continuous accumulation of “harvest now, decrypt later” (HNDL) exposure over time. Furthermore, current literature frequently treats algorithmic progress, hardware development, and migration strategy as partially disconnected domains. Consequently, there is a need for an integrated analytical survey that synthesizes developments in quantum cryptanalysis, fault-tolerant quantum computing, post-quantum cryptographic standardization, and time-dependent HNDL risk modeling in order to better contextualize practical migration urgency and long-term cryptographic resilience.
+
+\subsection{Research Questions}
+\begin{itemize}[leftmargin=*]
+
+  \item RQ1: How do recent advances in quantum algorithms, fault-tolerant architectures, and quantum hardware affect the projected feasibility and timeline of cryptanalytically relevant quantum computers (CRQCs)?
+  \item RQ2:What are the implications of Shor’s and Grover’s algorithms for the long-term security of contemporary asymmetric and symmetric cryptographic systems?
+  \item RQ3: How effective are current NIST-standardized post-quantum cryptographic schemes in mitigating emerging quantum threats, and what implementation challenges remain?
+  \item RQ4: What limitations exist in traditional interpretations of Mosca’s Inequality for modeling “harvest now, decrypt later” (HNDL) threats?
+  \item RQ5: How can continuous-time information-value decay models improve the understanding of long-term HNDL exposure and post-quantum migration risk?
+\end{itemize}  
+\subsection{Purpose Statement}
+The purpose of this analytical survey is to synthesize current research on quantum cryptanalysis, fault-tolerant quantum computing, post-quantum cryptographic standardization, and HNDL threat modeling in order to evaluate the evolving quantum threat landscape and its implications for long-term cryptographic security. The study further aims to conceptually examine continuous-time risk interpretations of Mosca’s Inequality and provide practical recommendations to support cryptographic agility and post-quantum migration planning.
+\subsection{Research Objectives}
+\begin{itemize}[leftmargin=*]
+
+  \item To analyze how recent advances in quantum algorithms, fault-tolerant architectures, and quantum hardware influence the projected feasibility and timeline of CRQCs.
+  \item To evaluate the implications of Shor’s and Grover’s algorithms for the long-term security of contemporary asymmetric and symmetric cryptographic systems.
+  \item To examine the effectiveness, standardization status, and implementation challenges of current NIST-standardized and emerging post-quantum cryptographic schemes.
+  \item To investigate the limitations of traditional interpretations of Mosca’s Inequality in modeling HNDL threats.
+  \item To conceptually analyze how continuous-time information-value decay models may improve the understanding of long-term HNDL exposure and post-quantum migration risk.
+
+\end{itemize}
+\section{Research Methodology}
+This study adopts an analytical survey methodology based on literature synthesis, comparative analysis, and conceptual risk modeling. The research integrates peer-reviewed journal articles, conference papers, NIST standards publications, technical reports, and selected industry sources related to quantum cryptanalysis, fault-tolerant quantum computing, post-quantum cryptography (PQC), and HNDL threat modeling.
+
+The study first reviews foundational and contemporary quantum algorithms, including Shor’s and Grover’s algorithms, together with recent developments in quantum resource estimation, QLDPC-based fault tolerance, and quantum hardware engineering. It then comparatively examines NIST-standardized PQC schemes and associated implementation-level security considerations.
+
+To analyze long-term cryptographic exposure, the research employs a conceptual analytical framework based on Mosca’s Inequality and extends it using continuous-time information-value decay models. Discrete and continuous convolution-based formulations are used to illustrate the temporal accumulation and decay of HNDL exposure under varying secrecy persistence assumptions.
+
+Finally, the study synthesizes the reviewed literature and analytical interpretations to derive practical migration recommendations and identify future research directions related to post-quantum cybersecurity and cryptographic resilience.
+\end{document}
